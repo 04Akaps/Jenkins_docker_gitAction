@@ -36,8 +36,6 @@ func (r *Router) healthCheckRouter() {
 func PrintRouters() {
 	router := RegisterRouter().(*mux.Router)
 
-	fmt.Println("들어옴")
-
 	err := router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		methods, _ := route.GetMethods()
 		path, _ := route.GetPathTemplate()
