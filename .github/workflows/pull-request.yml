@@ -2,8 +2,7 @@ name: pull-requeest-lint
 
 on:
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   lint-check:
