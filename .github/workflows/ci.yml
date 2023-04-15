@@ -16,17 +16,10 @@ jobs:
         run: go version
 
   lint-go-action:
-    strategy:
-      matrix:
-        go: [1.19]
-        os: [macos-latest, windows-latest]
-    name: lint
-    runs-on: ${{ matrix.os }}
-
     steps:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
-      with:
+        with:
           go-version: ${{ matrix.go }}
           cache: false
           version: v1.29
