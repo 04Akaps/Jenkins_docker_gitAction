@@ -28,4 +28,6 @@ func main() {
 		defer wg.Done()
 		router.PrintRouters()
 	}()
+
+	wg.Wait()
 }

@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  go-server:
+    image: go-server
+    build: ./
+    container_name: go-server-container
+    ports:
+      - "8080:8080"
+    restart: always
+  nginx:
+    image: nginx:1.18
+    container_name: nginx
+    # volumes:
+    #   - ../:/var/www/html
+    #   - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - "go-server"
