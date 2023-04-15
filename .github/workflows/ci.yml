@@ -15,7 +15,7 @@ jobs:
       - name: Display Go version
         run: go version
 
-  lint:
+  lint-go-action:
     strategy:
       matrix:
         go: [1.19]
@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v3
 
         with:
             go-version: ${{ matrix.go }}
