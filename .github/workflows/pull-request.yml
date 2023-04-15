@@ -1,0 +1,25 @@
+name: pull-requeest-lint
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint-check:
+    strategy:
+      matrix:
+        go: [1.19]
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.17"
+          cache: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+          with:
+            version: v1.29
