@@ -1,7 +1,6 @@
 package router
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,19 +22,9 @@ func HttpServerInit() error {
 
 func RegisterRouter() http.Handler {
 	r := newRouter()
-	r.connectionTestRouter()
 	r.healthCheckRouter()
 
 	return r.router
-}
-
-func (r *Router) connectionTestRouter() {
-	r.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		err := json.NewEncoder(w).Encode("connected")
-
-		log.Println("Lint를 위한 단순 err : ", err)
-	}).Methods("GET")
 }
 
 func (r *Router) healthCheckRouter() {
@@ -50,7 +39,9 @@ func PrintRouters() {
 	err := router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		methods, _ := route.GetMethods()
 		path, _ := route.GetPathTemplate()
-		log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
+		if methods != nil {
+			log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
+		}
 		return nil
 	})
 	if err != nil {

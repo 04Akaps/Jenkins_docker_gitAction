@@ -21,6 +21,7 @@ services:
       - my-network
     depends_on:
       - go-server
+    restart: always
 
 networks:
   my-network:
