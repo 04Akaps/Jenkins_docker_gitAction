@@ -17,7 +17,7 @@ type Router struct {
 func HttpServerInit() error {
 	log.Println(" ------ Server Start ------ ")
 
-	return http.ListenAndServe(":80", RegisterRouter())
+	return http.ListenAndServe(":8080", RegisterRouter())
 }
 
 func RegisterRouter() http.Handler {
