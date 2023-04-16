@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"sync"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/router"
 )
@@ -12,22 +11,7 @@ func init() {
 }
 
 func main() {
-	var wg sync.WaitGroup
-
-	wg.Add(2)
-
-	go func() {
-		defer wg.Done()
-
-		if err := router.HttpServerInit(); err != nil {
-			log.Fatal("Server Start Failed : ", err)
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		router.PrintRouters()
-	}()
-
-	wg.Wait()
+	if err := router.HttpServerInit(); err != nil {
+		log.Fatal("Server Start Failed : ", err)
+	}
 }
