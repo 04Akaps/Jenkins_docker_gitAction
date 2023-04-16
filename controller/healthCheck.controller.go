@@ -3,7 +3,6 @@ package controller
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -12,10 +11,13 @@ type HealthChecker struct {
 }
 
 func (h *HealthChecker) CheckHealth(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(200)
-	err := json.NewEncoder(w).Encode(" --- HealthChecker --- ")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(" --- HealthChecker --- ")
+}
 
-	log.Println("Lint를 위한 단순 err : ", err)
+func (h *HealthChecker) ErrorHealth(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusBadGateway)
+	w.Header().Add("error", "에러에 대해서 작성 - 로그용")
 }
 
 func NewHealthChecker() *HealthChecker {
