@@ -1,8 +1,10 @@
-FROM golang:1.20
+FROM golang:1.20.2
 
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
+
+LABEL version=${BUILD_DATE} 
 
 ENV PORT $PORT
 EXPOSE $PORT
