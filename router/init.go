@@ -1,6 +1,7 @@
 package router
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,9 +23,17 @@ func HttpServerInit() error {
 
 func RegisterRouter() http.Handler {
 	r := newRouter()
+	r.connectionTestRouter()
 	r.healthCheckRouter()
 
 	return r.router
+}
+
+func (r *Router) connectionTestRouter() {
+	r.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		json.NewEncoder(w).Encode("connected")
+	}).Methods("GET")
 }
 
 func (r *Router) healthCheckRouter() {

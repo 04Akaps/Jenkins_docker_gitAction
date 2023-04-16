@@ -6,14 +6,22 @@ services:
     build: "."
     ports:
       - "8080:8080"
+    networks:
+      - my-network
     restart: always
   nginx:
     image: nginx:1.18
     container_name: nginx
     volumes:
       - ./nginx:/usr/share/nginx/html
-      # - ./nginx/default.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"
+    networks:
+      - my-network
     depends_on:
       - go-server
+
+networks:
+  my-network:
+    driver: bridge
