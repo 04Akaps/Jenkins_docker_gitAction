@@ -32,7 +32,9 @@ func RegisterRouter() http.Handler {
 func (r *Router) connectionTestRouter() {
 	r.router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode("connected")
+		err := json.NewEncoder(w).Encode("connected")
+
+		log.Println("Lint를 위한 단순 err : ", err)
 	}).Methods("GET")
 }
 
