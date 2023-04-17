@@ -1,26 +1,49 @@
 package monitoring
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"strings"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
 
 type Metrics struct {
-	Devices prometheus.Gauge
-	Info    *prometheus.GaugeVec
+	HttpCounter map[string]prometheus.Counter
 }
 
-func NewMetrics(reg prometheus.Registerer) *Metrics {
-	m := &Metrics{
-		Devices: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: "goServer",
-			Name:      "connected_devices",
-			Help:      "Number of currently connected devices.",
-		}),
-		Info: prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Namespace: "goServer",
-			Name:      "info",
-			Help:      "Information about the My App environment.",
+var RequestCounters = &Metrics{
+	HttpCounter: make(map[string]prometheus.Counter),
+}
+
+func RegisterMetrics(path string) {
+	metricName := strings.Replace(path, "/", "_", -1)
+
+	counter := promauto.NewCounter(
+		prometheus.CounterOpts{
+			Namespace: "http",
+			Subsystem: "requests",
+			Name:      metricName,
+			Help:      "Number of HTTP requests",
 		},
-			[]string{"version"}),
-	}
-	reg.MustRegister(m.Devices, m.Info)
-	return m
+	)
+
+	RequestCounters.HttpCounter[metricName] = counter
+}
+
+func MetrisMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		metricName := strings.Replace(r.URL.Path, "/", "_", -1)
+		counter, ok := RequestCounters.HttpCounter[metricName]
+		fmt.Println("Counter", counter)
+		log.Println(metricName)
+		if ok {
+			counter.Inc()
+		} else {
+			panic("뭔가 잘못된 --- 디버깅용 panic")
+		}
+		next.ServeHTTP(w, r)
+	})
 }

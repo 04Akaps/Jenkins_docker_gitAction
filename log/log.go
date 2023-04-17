@@ -6,7 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"time"
+
+	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
 )
 
 const STANDARD_HTTP_ERROR_MESSAGE = "잘못된 요청입니다. 요청을 확인해 주세요"
@@ -26,6 +29,13 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 		w.Header().Set("Content-Type", "application/json")
 
 		log.Printf("%s %s", r.Method, r.URL.Path)
+
+		// metrics 카운터 증가용
+		metricName := strings.Replace(r.URL.Path, "/", "_", -1)
+		counter, ok := monitoring.RequestCounters.HttpCounter[metricName]
+		if ok {
+			counter.Inc()
+		}
 
 		recoder := httptest.NewRecorder()
 		next.ServeHTTP(recoder, r)

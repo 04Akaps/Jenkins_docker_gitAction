@@ -7,9 +7,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/04Akaps/Jenkins_docker_go.git/controller"
 	logger "github.com/04Akaps/Jenkins_docker_go.git/log"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 type Router struct {
@@ -20,7 +21,7 @@ type Router struct {
 func HttpServerInit() error {
 	log.Println(" ------ Server Start ------ ")
 
-	r, _ := RegisterRouter()
+	logMux, _ := RegisterRouter()
 
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -28,12 +29,12 @@ func HttpServerInit() error {
 	go func() {
 		// 서버 시작 시 모든 router를 확인하기 위한 sync
 		defer wg.Done()
-		PrintRouters()
+		// printRouters()
 	}()
 
 	wg.Wait()
 
-	return http.ListenAndServe(":8080", r)
+	return http.ListenAndServe(":8080", logMux)
 }
 
 func RegisterRouter() (http.Handler, *mux.Router) {
@@ -41,19 +42,18 @@ func RegisterRouter() (http.Handler, *mux.Router) {
 
 	logMux := logger.ServerLogger(r.router, r.logFile)
 
+	reg := prometheus.NewRegistry()
+	promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
+	r.router.Handle("/metrics", promHandler)
+	// reg.MustRegister를 사용해야 데이터가 보이는지 체크 필요
 	r.healthCheckRouter()
 
 	return logMux, r.router
 }
 
-func (r *Router) healthCheckRouter() {
-	healthChecker := controller.NewHealthChecker()
-	healthCheckRouter := r.router.PathPrefix("/health").Subrouter()
-	healthCheckRouter.HandleFunc("", healthChecker.CheckHealth).Methods("GET")
-	healthCheckRouter.HandleFunc("/err", healthChecker.ErrorHealth).Methods("GET")
-}
+// ---- Utils Function ----
 
-func PrintRouters() {
+func printRouters() {
 	_, router := RegisterRouter()
 
 	err := router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
