@@ -40,6 +40,7 @@ func RegisterRouter() (http.Handler, *mux.Router) {
 	r := newRouter()
 
 	logMux := logger.ServerLogger(r.router, r.logFile)
+
 	r.healthCheckRouter()
 
 	return logMux, r.router
@@ -58,6 +59,7 @@ func PrintRouters() {
 	err := router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		methods, _ := route.GetMethods()
 		path, _ := route.GetPathTemplate()
+
 		if methods != nil {
 			log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
 		}

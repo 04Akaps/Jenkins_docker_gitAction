@@ -44,6 +44,7 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 			}
 
 			_ = json.NewEncoder(w).Encode(&response)
+			return
 		}
 	})
 }
