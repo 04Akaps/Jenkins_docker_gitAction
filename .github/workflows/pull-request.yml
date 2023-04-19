@@ -7,7 +7,7 @@ jobs:
   lint-check:
     strategy:
       matrix:
-        go: [1.19]
+        go: [1.20]
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:

@@ -18,10 +18,13 @@ jobs:
       - name: Download Dependencies
         run: go mod download
 
+      - name: build go File
+        run: go build
+
   lint-go-action:
     strategy:
       matrix:
-        go: [1.19]
+        go: [1.20]
         os: [macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
