@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"os"
 	"time"
+
+	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
 )
 
 const STANDARD_HTTP_ERROR_MESSAGE = "잘못된 요청입니다. 요청을 확인해 주세요"
@@ -22,10 +24,25 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 		if r.Header.Get("Content-Type") != "" {
 			r.Header.Set("Content-Type", "application/json")
 		}
-
 		w.Header().Set("Content-Type", "application/json")
 
 		log.Printf("%s %s", r.Method, r.URL.Path)
+
+		counter, ok := monitoring.RequestCounters[r.URL.Path]
+
+		if !ok {
+			// 존재하지 않는 라우터인 경우
+			response := &errorResponse{
+				Http_status_code: 404,
+				Message:          STANDARD_HTTP_ERROR_MESSAGE,
+				Err_Message:      "존재하지 않는 라우팅",
+			}
+
+			_ = json.NewEncoder(w).Encode(&response)
+			return
+		}
+
+		counter.Inc() // prometheus 카운터 증가
 
 		recoder := httptest.NewRecorder()
 		next.ServeHTTP(recoder, r)
@@ -44,6 +61,7 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 			}
 
 			_ = json.NewEncoder(w).Encode(&response)
+			return
 		}
 	})
 }

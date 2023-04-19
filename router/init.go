@@ -5,10 +5,9 @@ import (
 	"log"
 	"net/http"
 	"strings"
-	"sync"
 
-	"github.com/04Akaps/Jenkins_docker_go.git/controller"
 	logger "github.com/04Akaps/Jenkins_docker_go.git/log"
+	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
 	"github.com/gorilla/mux"
 )
 
@@ -17,48 +16,38 @@ type Router struct {
 	logFile *log.Logger
 }
 
+type RouterInterface interface {
+	registerRouter() (http.Handler, *mux.Router)
+	printRouters()
+}
+
 func HttpServerInit() error {
 	log.Println(" ------ Server Start ------ ")
 
-	r, _ := RegisterRouter()
-
-	var wg sync.WaitGroup
-	wg.Add(1)
-
-	go func() {
-		// 서버 시작 시 모든 router를 확인하기 위한 sync
-		defer wg.Done()
-		PrintRouters()
-	}()
-
-	wg.Wait()
-
-	return http.ListenAndServe(":8080", r)
-}
-
-func RegisterRouter() (http.Handler, *mux.Router) {
+	// logMux, _ := RegisterRouter()
 	r := newRouter()
 
+	logMux, _ := r.registerRouter()
+	r.printRouters()
+
+	return http.ListenAndServe(":8080", logMux)
+}
+
+func (r Router) registerRouter() (http.Handler, *mux.Router) {
 	logMux := logger.ServerLogger(r.router, r.logFile)
+
 	r.healthCheckRouter()
 
 	return logMux, r.router
 }
 
-func (r *Router) healthCheckRouter() {
-	healthChecker := controller.NewHealthChecker()
-	healthCheckRouter := r.router.PathPrefix("/health").Subrouter()
-	healthCheckRouter.HandleFunc("", healthChecker.CheckHealth).Methods("GET")
-	healthCheckRouter.HandleFunc("/err", healthChecker.ErrorHealth).Methods("GET")
-}
-
-func PrintRouters() {
-	_, router := RegisterRouter()
-
-	err := router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+func (r Router) printRouters() {
+	err := r.router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		methods, _ := route.GetMethods()
 		path, _ := route.GetPathTemplate()
+
 		if methods != nil {
+			monitoring.RegisterMetrics(path)
 			log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
 		}
 		return nil
@@ -68,7 +57,7 @@ func PrintRouters() {
 	}
 }
 
-func newRouter() *Router {
+func newRouter() RouterInterface {
 	logFile := logger.GetLogFile(".")
 	return &Router{
 		router:  mux.NewRouter(),
