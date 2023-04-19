@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
@@ -25,17 +24,25 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 		if r.Header.Get("Content-Type") != "" {
 			r.Header.Set("Content-Type", "application/json")
 		}
-
 		w.Header().Set("Content-Type", "application/json")
 
 		log.Printf("%s %s", r.Method, r.URL.Path)
 
-		// metrics 카운터 증가용
-		metricName := strings.Replace(r.URL.Path, "/", "_", -1)
-		counter, ok := monitoring.RequestCounters.HttpCounter[metricName]
-		if ok {
-			counter.Inc()
+		counter, ok := monitoring.RequestCounters[r.URL.Path]
+
+		if !ok {
+			// 존재하지 않는 라우터인 경우
+			response := &errorResponse{
+				Http_status_code: 404,
+				Message:          STANDARD_HTTP_ERROR_MESSAGE,
+				Err_Message:      "존재하지 않는 라우팅",
+			}
+
+			_ = json.NewEncoder(w).Encode(&response)
+			return
 		}
+
+		counter.Inc() // prometheus 카운터 증가
 
 		recoder := httptest.NewRecorder()
 		next.ServeHTTP(recoder, r)
