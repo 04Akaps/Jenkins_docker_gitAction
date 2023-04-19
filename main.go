@@ -64,6 +64,7 @@ func main() {
 	startContext, cancel := context.WithCancel(context.Background())
 
 	go func() {
+		// HTTP요청 서버
 		if err := router.HttpServerInit(); err != nil {
 			log.Fatal(err)
 		}
@@ -72,6 +73,7 @@ func main() {
 	}()
 
 	go func() {
+		// 모니터링 서버
 		http.Handle("/metrics", promhttp.Handler())
 		if err := http.ListenAndServe(":2112", nil); err != nil {
 			log.Fatal(err)
