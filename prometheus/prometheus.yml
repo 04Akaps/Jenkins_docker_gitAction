@@ -1,9 +1,13 @@
 ---
 global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+alerting:
+
+rule_files:
 
 scrape_configs:
-  - job_name: go
+  - job_name: myapp
     static_configs:
-      - targets: ["go:2112"]
+      - targets: ["myapp:2112"]

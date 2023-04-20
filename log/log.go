@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const STANDARD_HTTP_ERROR_MESSAGE = "잘못된 요청입니다. 요청을 확인해 주세요"
@@ -42,7 +43,9 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 			return
 		}
 
-		counter.Inc() // prometheus 카운터 증가
+		counter.With(prometheus.Labels{"type": "router"}).Inc()
+		// .upgrades.With(prometheus.Labels{"type": "router"}).Inc()
+		// counter.Inc() // prometheus 카운터 증가
 
 		recoder := httptest.NewRecorder()
 		next.ServeHTTP(recoder, r)
