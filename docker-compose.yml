@@ -1,8 +1,8 @@
 version: "3"
 
 services:
-  go-server:
-    image: go-server:latest
+  go_server:
+    image: go_server:latest
     build: "."
     ports:
       - "8080:8080"
@@ -21,9 +21,33 @@ services:
     networks:
       - my-network
     depends_on:
-      - go-server
+      - go_server
     restart: always
+  prometheus:
+    image: prom/prometheus:v2.24.0
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - 9090:9090
+    restart: always
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - "9080:9080"
+  #   volumes:
+  #     - grafana-storage:/var/lib/grafana
 
 networks:
   my-network:
     driver: bridge
+
+volumes:
+  grafana-storage:
+  prometheus_data:
