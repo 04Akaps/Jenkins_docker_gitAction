@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +22,7 @@ func TestHealthChecker(t *testing.T) {
 		t.Errorf("Expected 200 but got %d", resp.StatusCode)
 	}
 
-	response, err := ioutil.ReadAll(resp.Body)
+	response, err := io.ReadAll(resp.Body)
 	if err != nil {
 		t.Error(err)
 	}
@@ -45,7 +45,7 @@ func TestHealthChecker(t *testing.T) {
 		t.Errorf("Expected 502 but got %d", resp.StatusCode)
 	}
 
-	response, err = ioutil.ReadAll(resp.Body)
+	response, err = io.ReadAll(resp.Body)
 
 	if err != nil {
 		t.Error(err)
