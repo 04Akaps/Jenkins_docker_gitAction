@@ -9,11 +9,13 @@ import (
 	logger "github.com/04Akaps/Jenkins_docker_go.git/log"
 	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type Router struct {
 	router  *mux.Router
 	logFile *log.Logger
+	reg     *prometheus.Registry
 }
 
 type RouterInterface interface {
@@ -21,11 +23,11 @@ type RouterInterface interface {
 	printRouters()
 }
 
-func HttpServerInit() error {
+func HttpServerInit(reg *prometheus.Registry) error {
 	log.Println(" ------ Server Start ------ ")
 
 	// logMux, _ := RegisterRouter()
-	r := newRouter()
+	r := newRouter(reg)
 
 	logMux, _ := r.registerRouter()
 	r.printRouters()
@@ -47,7 +49,7 @@ func (r Router) printRouters() {
 		path, _ := route.GetPathTemplate()
 
 		if methods != nil {
-			monitoring.RegisterMetrics(path)
+			monitoring.RegisterMetrics(path, r.reg)
 			log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
 		}
 		return nil
@@ -57,10 +59,11 @@ func (r Router) printRouters() {
 	}
 }
 
-func newRouter() RouterInterface {
+func newRouter(reg *prometheus.Registry) RouterInterface {
 	logFile := logger.GetLogFile(".")
 	return &Router{
 		router:  mux.NewRouter(),
 		logFile: logFile,
+		reg:     reg,
 	}
 }

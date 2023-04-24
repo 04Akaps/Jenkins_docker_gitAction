@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/router"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -62,10 +63,11 @@ func init() {
 
 func main() {
 	startContext, cancel := context.WithCancel(context.Background())
+	reg := prometheus.NewRegistry()
 
 	go func() {
 		// HTTP요청 서버
-		if err := router.HttpServerInit(); err != nil {
+		if err := router.HttpServerInit(reg); err != nil {
 			log.Fatal(err)
 		}
 
@@ -74,7 +76,9 @@ func main() {
 
 	go func() {
 		// 모니터링 서버
-		http.Handle("/metrics", promhttp.Handler())
+
+		promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
+		http.Handle("/metrics", promHandler)
 		if err := http.ListenAndServe(":2112", nil); err != nil {
 			log.Fatal(err)
 		}
