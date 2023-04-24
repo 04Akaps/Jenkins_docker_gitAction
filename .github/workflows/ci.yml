@@ -18,6 +18,18 @@ jobs:
       - name: Download Dependencies
         run: go mod download
 
+  go-test-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.20"
+
+      - name: Testing Go Code
+        run: go test -v ./...
+
   lint-go-action:
     strategy:
       matrix:

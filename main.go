@@ -76,7 +76,6 @@ func main() {
 
 	go func() {
 		// 모니터링 서버
-
 		promHandler := promhttp.HandlerFor(reg, promhttp.HandlerOpts{})
 		http.Handle("/metrics", promHandler)
 		if err := http.ListenAndServe(":2112", nil); err != nil {
