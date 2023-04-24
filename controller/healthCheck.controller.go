@@ -10,9 +10,11 @@ type HealthChecker struct {
 	healthCtx context.Context
 }
 
+const HEALTH_CHECK_TEST = " --- HealthChecker --- "
+
 func (h *HealthChecker) CheckHealth(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(" --- HealthChecker --- ")
+	_ = json.NewEncoder(w).Encode(HEALTH_CHECK_TEST)
 }
 
 func (h *HealthChecker) ErrorHealth(w http.ResponseWriter, r *http.Request) {
