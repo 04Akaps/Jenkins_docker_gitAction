@@ -64,6 +64,7 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 			_ = json.NewEncoder(w).Encode(&response)
 			return
 		}
+		w.Write(recoder.Body.Bytes()) // Body값을 고려하기 위해
 	})
 }
 
