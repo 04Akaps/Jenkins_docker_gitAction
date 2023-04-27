@@ -10,4 +10,5 @@ func (r *Router) healthCheckRouter() {
 
 	healthCheckR.HandleFunc("", healthChecker.CheckHealth).Methods("GET")
 	healthCheckR.HandleFunc("/err", healthChecker.ErrorHealth).Methods("GET")
+	healthCheckR.HandleFunc("/body", healthChecker.BodyHealth).Methods("POST")
 }

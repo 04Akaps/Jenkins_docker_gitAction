@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -53,6 +55,37 @@ func TestHealthChecker(t *testing.T) {
 
 	if trimString("") != trimString(string(response)) {
 		t.Errorf("Expected Text is Not Same : %v", string(response))
+	}
+
+	log.Println(" ----------- Body Health ---------------")
+
+	bodyReq := healthCheckerBodyReq{Name: "test"}
+	bodyHealthServer := httptest.NewServer(http.HandlerFunc(NewHealthChecker().BodyHealth))
+
+	bodyReqJSON, err := json.Marshal(bodyReq)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// POST 요청으로 바디 전송
+	resp, err = http.Post(bodyHealthServer.URL, "application/json", bytes.NewBuffer(bodyReqJSON))
+	if err != nil {
+		t.Error(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("Expected 200 but got %d", resp.StatusCode)
+	}
+
+	var respBody healthCheckerBodyReq
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		t.Error(err)
+	}
+
+	// 응답 바디와 요청 바디 일치 여부 확인
+	if respBody.Name != bodyReq.Name {
+		t.Errorf("Expected body name is %s but got %s", bodyReq.Name, respBody.Name)
 	}
 }
 
