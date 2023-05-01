@@ -27,6 +27,8 @@ func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	log.Println("GetSnsByID", id)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (sc *SnsController) GetAllSnsByUserName(w http.ResponseWriter, r *http.Request) {
@@ -34,8 +36,12 @@ func (sc *SnsController) GetAllSnsByUserName(w http.ResponseWriter, r *http.Requ
 	name := vars["userName"]
 
 	log.Println("GetAllSnsByUserName", name)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
+
+	w.WriteHeader(http.StatusOK)
 }

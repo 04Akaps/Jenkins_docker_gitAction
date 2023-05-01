@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	logger "github.com/04Akaps/Jenkins_docker_go.git/log"
-	"github.com/04Akaps/Jenkins_docker_go.git/monitoring"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 )
@@ -39,6 +38,7 @@ func (r Router) registerRouter() (http.Handler, *mux.Router) {
 	logMux := logger.ServerLogger(r.router, r.logFile)
 
 	r.healthCheckRouter()
+	r.SnsRouter()
 
 	return logMux, r.router
 }
@@ -49,7 +49,7 @@ func (r Router) printRouters() {
 		path, _ := route.GetPathTemplate()
 
 		if methods != nil {
-			monitoring.RegisterMetrics(path, r.reg)
+			// monitoring.RegisterMetrics(path, r.reg)
 			log.Printf("%s: %s\n", strings.Join(methods, ", "), path)
 		}
 		return nil
