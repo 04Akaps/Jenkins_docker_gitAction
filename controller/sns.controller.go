@@ -5,11 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	connection "github.com/04Akaps/Jenkins_docker_go.git/mysql"
+	sqlc "github.com/04Akaps/Jenkins_docker_go.git/mysql/sqlc"
 	"github.com/gorilla/mux"
 )
 
 type SnsController struct {
-	Ctx context.Context
+	Ctx         context.Context
+	MySQLClient *sqlc.Queries
 }
 
 type SnsImpl interface {
@@ -19,7 +22,7 @@ type SnsImpl interface {
 }
 
 func NewSnsController() SnsImpl {
-	return &SnsController{Ctx: context.Background()}
+	return &SnsController{Ctx: context.Background(), MySQLClient: connection.NewMySQLClient("sns")}
 }
 
 func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
