@@ -1,21 +1,24 @@
--- name: CreateNewSnsPost :one
+-- name: CreateNewSnsPost :execresult
 INSERT INTO post (
-    eoa_address,
-    contract_address,
-    network_chain_id,
-    price,
-    meta_data_uri
+    post_owner_account,
+    title,
+    image_url,
+    text
 ) VALUES (
-   ?, ?, ?, ?, ?
+   ?, ?, ?, ?
 );
 
--- name: GetMyAllLaunchpad :many
-SELECT * FROM evmLaunchpad
-WHERE eoa_address = ?;
+-- name: GetSnsPostAll :many
+SELECT * FROM post
+WHERE post_owner_account = ?;
 
--- name: GetLaunchpad :one
-SELECT * FROM evmLaunchpad
-WHERE contract_address = ? LIMIT 1;
+-- name: GetSnsPost :one
+SELECT * FROM post
+WHERE post_id = ? LIMIT 1;
 
--- name: DeleteAllLaunchpad :execresult
-DELETE FROM evmLaunchpad
+-- name: DeleteSnsPostByPostId :execresult
+DELETE FROM post 
+WHERE post_id = ? LIMIT 1;
+
+
+-- update는 나중에 추가 예정
