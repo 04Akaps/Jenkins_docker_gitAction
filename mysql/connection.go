@@ -63,7 +63,7 @@ func MigratMysql(db *sql.DB) {
 	}
 
 	if dirty {
-		m.Drop()
+		_ = m.Drop()
 	}
 
 	if err := m.Migrate(version); err != nil {
@@ -72,5 +72,5 @@ func MigratMysql(db *sql.DB) {
 		}
 	}
 
-	m.Steps(2)
+	_ = m.Steps(2)
 }
