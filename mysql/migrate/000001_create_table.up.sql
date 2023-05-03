@@ -10,7 +10,7 @@ CREATE TABLE `post` (
 
 CREATE TABLE `comment` (
     `comment_id` bigint PRIMARY KEY AUTO_INCREMENT,
-    `post_id` INT NOT NULL,
+    `post_id` bigint NOT NULL,
     `comment_owner_account` VARCHAR(255) NOT NULL,
     `text` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -18,4 +18,4 @@ CREATE TABLE `comment` (
 
 CREATE INDEX `comment_index_0` ON `comment` (`comment_owner_account`);
 
-ALTER TABLE `comment` ADD FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE;;
+ALTER TABLE `comment` ADD FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE CASCADE;
