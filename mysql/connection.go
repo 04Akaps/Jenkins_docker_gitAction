@@ -35,7 +35,7 @@ func NewMySQLClient(dbName string) *sqlc.Queries {
 	dbInstance.SetMaxIdleConns(3)
 	dbInstance.SetMaxOpenConns(6)
 
-	log.Printf(fmt.Sprintf("Connected to the database : %s", dbName))
+	log.Printf("Connected to the database : %s", dbName)
 
 	return sqlc.New(dbInstance)
 }
