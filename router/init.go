@@ -39,6 +39,7 @@ func (r Router) registerRouter() (http.Handler, *mux.Router) {
 	logMux := logger.ServerLogger(r.router, r.logFile)
 
 	r.healthCheckRouter()
+	r.SnsRouter()
 
 	return logMux, r.router
 }
