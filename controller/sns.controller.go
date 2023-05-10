@@ -8,6 +8,7 @@ import (
 	"github.com/04Akaps/Jenkins_docker_go.git/crypto"
 	connection "github.com/04Akaps/Jenkins_docker_go.git/mysql"
 	sqlc "github.com/04Akaps/Jenkins_docker_go.git/mysql/sqlc"
+	"github.com/04Akaps/Jenkins_docker_go.git/utils"
 	"github.com/gorilla/mux"
 )
 
@@ -83,6 +84,13 @@ func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
 
 	var req sqlc.CreateNewSnsPostParams
+	decoder := utils.BodyDecoder(w, r)
+
+	if err := decoder.Decode(&req); err != nil {
+		log.Println("디코딩 실패")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// 주소 검증
 	if !sc.EthClient.IsEoaAddress(req.PostOwnerAccount) || sc.EthClient.IsContractAddress(sc.Ctx, req.PostOwnerAccount) {
@@ -102,6 +110,10 @@ func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// 이미지를 파일로 받아서 처리를 하는것이 일반적이고 효율적으로 알고 있는데,
+	// 해당 부분을 하는 방법을 몰라서... 일단 base64로 저장한다고 가정
+	log.Println(req)
 
 	w.WriteHeader(http.StatusOK)
 }
