@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"regexp"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/crypto"
 	connection "github.com/04Akaps/Jenkins_docker_go.git/mysql"
@@ -15,7 +14,7 @@ import (
 type SnsController struct {
 	Ctx         context.Context
 	MySQLClient *sqlc.Queries
-	EthClient   *crypto.CryptoClient
+	EthClient   crypto.CryptoClientImpl
 }
 
 type SnsImpl interface {
@@ -23,8 +22,6 @@ type SnsImpl interface {
 	GetAllSnsByEoaAddress(http.ResponseWriter, *http.Request)
 	MakeSns(http.ResponseWriter, *http.Request)
 }
-
-var re = regexp.MustCompile("^0x[0-9a-fA-F]{40}$") // 40자리의 16진수 인지 검증
 
 func NewSnsController() SnsImpl {
 	context := context.Background()
@@ -42,6 +39,8 @@ func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("GetSnsByID", id)
 
+	// id에 해당하는 sns를 념거주자
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -53,18 +52,56 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 
 	// 유효한 주소 체크는 나중에
 
-	if re.MatchString(address) {
-		log.Println("16진수가 아니고 40글자도 아닌경우")
-		// w.WriteHeader(http.StatusBadGateway)
-		// w.Header().Add("error", "잘못된 16진수 또는 40글자가 맞지 않습니다.")
-		// return
+	if !sc.EthClient.IsEoaAddress(address) || sc.EthClient.IsContractAddress(sc.Ctx, address) {
+		log.Println("16진수가 아니고 40글자도 아닌경우 & Contract 주소 인 경우")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
+	// 이제 모든 데이터를 가져오면 된다.
 
 	w.WriteHeader(http.StatusOK)
 }
 
+// INSERT INTO post (
+//     post_owner_account,
+//     title,
+//     image_url,
+//     text
+// ) VALUES (
+//    ?, ?, ?, ?
+// );
+
+// type CreateNewSnsPostParams struct {
+// 	PostOwnerAccount string `json:"post_owner_account"`
+// 	Title            string `json:"title"`
+// 	ImageUrl         string `json:"image_url"`
+// 	Text             string `json:"text"`
+// }
+
 func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
+
+	var req sqlc.CreateNewSnsPostParams
+
+	// 주소 검증
+	if !sc.EthClient.IsEoaAddress(req.PostOwnerAccount) || sc.EthClient.IsContractAddress(sc.Ctx, req.PostOwnerAccount) {
+		log.Println("16진수가 아니고 40글자도 아닌경우 & Contract 주소 인 경우")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if len(req.Text) == 0 {
+		// 글 내용이 없는 경우
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if len(req.Title) == 0 {
+		// 제목이 없는 경우
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
