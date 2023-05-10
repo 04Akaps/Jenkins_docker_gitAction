@@ -64,22 +64,6 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 }
 
-// INSERT INTO post (
-//     post_owner_account,
-//     title,
-//     image_url,
-//     text
-// ) VALUES (
-//    ?, ?, ?, ?
-// );
-
-// type CreateNewSnsPostParams struct {
-// 	PostOwnerAccount string `json:"post_owner_account"`
-// 	Title            string `json:"title"`
-// 	ImageUrl         string `json:"image_url"`
-// 	Text             string `json:"text"`
-// }
-
 func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
 
@@ -112,8 +96,15 @@ func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 이미지를 파일로 받아서 처리를 하는것이 일반적이고 효율적으로 알고 있는데,
-	// 해당 부분을 하는 방법을 몰라서... 일단 base64로 저장한다고 가정
-	log.Println(req)
+	// 해당 부분을 하는 방법을 몰라서... 일단 base64로 저장
+
+	_, err := sc.MySQLClient.CreateNewSnsPost(sc.Ctx, req)
+	if err != nil {
+		// DB Insert 실패
+		log.Println("Insert Query Failed --> ", err)
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
