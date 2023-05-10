@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/04Akaps/Jenkins_docker_go.git/crypto"
 	connection "github.com/04Akaps/Jenkins_docker_go.git/mysql"
@@ -41,6 +42,28 @@ func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetSnsByID", id)
 
 	// id에 해당하는 sns를 념거주자
+	numId, err := strconv.Atoi(id)
+	if err != nil {
+		// 변환 실패
+		log.Println("Atoi 변환 실패")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if numId < 1 {
+		log.Println("존재하지 않는 Key")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	result, err := sc.MySQLClient.GetSnsPost(sc.Ctx, int64(numId))
+	if err != nil {
+		log.Println("Get Query Failed --> ", err)
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
+	log.Println(result)
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -49,10 +72,6 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 	vars := mux.Vars(r)
 	address := vars["eoaAddress"]
 
-	log.Println("GetAllSnsByEoaAddress", address)
-
-	// 유효한 주소 체크는 나중에
-
 	if !sc.EthClient.IsEoaAddress(address) || sc.EthClient.IsContractAddress(sc.Ctx, address) {
 		log.Println("16진수가 아니고 40글자도 아닌경우 & Contract 주소 인 경우")
 		w.WriteHeader(http.StatusBadRequest)
@@ -60,6 +79,15 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 	}
 
 	// 이제 모든 데이터를 가져오면 된다.
+
+	result, err := sc.MySQLClient.GetSnsPostAll(sc.Ctx, address)
+	if err != nil {
+		log.Println("Get All Query Failed --> ", err)
+		w.WriteHeader(http.StatusConflict)
+		return
+	}
+
+	log.Println(result)
 
 	w.WriteHeader(http.StatusOK)
 }
