@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -63,9 +64,8 @@ func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(result)
-
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Request) {
@@ -87,17 +87,15 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	log.Println(result)
-
 	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
-
 	var req sqlc.CreateNewSnsPostParams
-	decoder := utils.BodyDecoder(w, r)
 
+	decoder := utils.BodyDecoder(w, r)
 	if err := decoder.Decode(&req); err != nil {
 		log.Println("디코딩 실패")
 		w.WriteHeader(http.StatusBadRequest)
@@ -125,10 +123,9 @@ func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
 
 	// 이미지를 파일로 받아서 처리를 하는것이 일반적이고 효율적으로 알고 있는데,
 	// 해당 부분을 하는 방법을 몰라서... 일단 base64로 저장
-
 	_, err := sc.MySQLClient.CreateNewSnsPost(sc.Ctx, req)
 	if err != nil {
-		// DB Insert 실패
+		// DB Insert 실패ㄴ
 		log.Println("Insert Query Failed --> ", err)
 		w.WriteHeader(http.StatusConflict)
 		return

@@ -18,7 +18,7 @@ import (
 )
 
 func NewMySQLClient(dbName string) *sqlc.Queries {
-	sourceUri := fmt.Sprintf("admin:t2yq9m!!@tcp(golang-sns-v2.cynkkrrli9o4.ap-northeast-2.rds.amazonaws.com:3306)/%s", dbName)
+	sourceUri := fmt.Sprintf("admin:t2yq9m!!@tcp(golang-sns-v2.cynkkrrli9o4.ap-northeast-2.rds.amazonaws.com:3306)/%s", dbName+"?parseTime=true")
 	// 어차피 개인용이기 떄문에 Viper같은 패키지는 사용하지 않고 FIx형태로 DB Endpoint 작업
 	// 현재 DB는 sns라는 DB를 사용 중
 	dbInstance, err := sql.Open("mysql", sourceUri)
