@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"testing"
 
 	sns_mock "github.com/04Akaps/Jenkins_docker_go.git/mock/sns_mock"
@@ -26,5 +27,7 @@ func TestSnsController(t *testing.T) {
 		Text:             "New Test Text",
 	}
 	mockInterface.EXPECT().NewPost(newSnsPost).Return(nil).Times(1)
-	testSns.Use(newSnsPost)
+	if err := testSns.Use(newSnsPost); err != nil {
+		log.Println("Use Error : ", err)
+	}
 }
