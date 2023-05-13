@@ -8,7 +8,7 @@ import (
 
 type Comment struct {
 	CommentID           int64        `json:"comment_id"`
-	PostID              int32        `json:"post_id"`
+	PostID              int64        `json:"post_id"`
 	CommentOwnerAccount string       `json:"comment_owner_account"`
 	Text                string       `json:"text"`
 	CreatedAt           sql.NullTime `json:"created_at"`
