@@ -44,6 +44,18 @@ func (q *Queries) DeleteSnsPostByPostId(ctx context.Context, postID int64) (sql.
 	return q.db.ExecContext(ctx, deleteSnsPostByPostId, postID)
 }
 
+const getPostId = `-- name: GetPostId :one
+SELECT post_id FROM post
+WHERE post_id = ?
+`
+
+func (q *Queries) GetPostId(ctx context.Context, postID int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPostId, postID)
+	var post_id int64
+	err := row.Scan(&post_id)
+	return post_id, err
+}
+
 const getSnsPost = `-- name: GetSnsPost :one
 SELECT post_id, post_owner_account, title, image_url, text, like_point, created_at FROM post
 WHERE post_id = ? LIMIT 1

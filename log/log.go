@@ -23,8 +23,12 @@ func ServerLogger(next http.Handler, logFile *log.Logger) http.Handler {
 			r.Header.Set("Content-Type", "application/json")
 		}
 		w.Header().Set("Content-Type", "application/json")
+		// ip, port, _ := net.SplitHostPort(r.RemoteAddr)
 
-		log.Printf("%s %s", r.Method, r.URL.Path)
+		// log.Println(ip)
+		// log.Println(port)
+
+		log.Printf("%s : %s", r.Method, r.URL.Path)
 
 		// -> 요청에 대한 Counter를 기록하기 위한 코드
 		// -> 현재는 Params, Query 등에 대해서 어떻게 파싱할지 고민중이라서 주석처리로 대체

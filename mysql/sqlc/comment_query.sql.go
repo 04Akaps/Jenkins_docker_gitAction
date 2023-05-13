@@ -19,7 +19,7 @@ INSERT INTO comment (
 `
 
 type CreateNewCommentParams struct {
-	PostID              int32  `json:"post_id"`
+	PostID              int64  `json:"post_id"`
 	CommentOwnerAccount string `json:"comment_owner_account"`
 	Text                string `json:"text"`
 }

@@ -14,29 +14,29 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type SnsController struct {
+type PostController struct {
 	Ctx         context.Context
 	MySQLClient *sqlc.Queries
 	EthClient   crypto.CryptoClientImpl
 }
 
-type SnsImpl interface {
-	GetSnsByID(http.ResponseWriter, *http.Request)
-	GetAllSnsByEoaAddress(http.ResponseWriter, *http.Request)
-	MakeSns(http.ResponseWriter, *http.Request)
+type PostImpl interface {
+	GetPostByID(http.ResponseWriter, *http.Request)
+	GetAllPostByEoaAddress(http.ResponseWriter, *http.Request)
+	MakePost(http.ResponseWriter, *http.Request)
 }
 
-func NewSnsController() SnsImpl {
+func NewPostController() PostImpl {
 	context := context.Background()
 	endPoint := "https://mainnet.infura.io/v3/299623e5cf3442c8bb2dbe870d8f7d88"
 	// 어차피 개인 프로젝트이기 떄문에 Fix
 
 	client := crypto.NewEthClient(context, endPoint)
 
-	return &SnsController{Ctx: context, MySQLClient: connection.NewMySQLClient("sns"), EthClient: client}
+	return &PostController{Ctx: context, MySQLClient: connection.NewMySQLClient("sns"), EthClient: client}
 }
 
-func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
+func (sc *PostController) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
@@ -68,7 +68,7 @@ func (sc *SnsController) GetSnsByID(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Request) {
+func (sc *PostController) GetAllPostByEoaAddress(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	address := vars["eoaAddress"]
 
@@ -91,7 +91,7 @@ func (sc *SnsController) GetAllSnsByEoaAddress(w http.ResponseWriter, r *http.Re
 	_ = json.NewEncoder(w).Encode(result)
 }
 
-func (sc *SnsController) MakeSns(w http.ResponseWriter, r *http.Request) {
+func (sc *PostController) MakePost(w http.ResponseWriter, r *http.Request) {
 	log.Println("MakeSns")
 	var req sqlc.CreateNewSnsPostParams
 

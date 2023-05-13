@@ -13,3 +13,7 @@ AWS RDS 사용 중
 Endpoint : golang-sns-v2.cynkkrrli9o4.ap-northeast-2.rds.amazonaws.com
 
 - 개인 저장 용
+
+# mockgen
+
+mockgen -destination=./mock/sns_mock/snsMockRunner.go -package=mocks -source=./mock/sns_mock/IMock_Sns.go
